@@ -111,7 +111,8 @@ const getCookie = (req: express.Request, name: string) => req.headers.cookie?.sp
 async function issueSession(userId: string, res: express.Response) {
   const token = randomBytes(32).toString('base64url'); const csrf = randomBytes(24).toString('base64url');
   await Session.create({ tokenHash: hashToken(token), userId, csrf, expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) });
-  res.cookie('kenora_session', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', path: '/', maxAge: 1000 * 60 * 60 * 24 * 7 });
+  const production = process.env.NODE_ENV === 'production';
+  res.cookie('kenora_session', token, { httpOnly: true, secure: production, sameSite: production ? 'none' : 'strict', path: '/', maxAge: 1000 * 60 * 60 * 24 * 7 });
   return csrf;
 }
 app.get('/api/v1/auth/status', async (_req, res, next) => {
@@ -150,7 +151,8 @@ app.post('/api/v1/auth/logout', async (req, res, next) => {
     const token = getCookie(req, 'kenora_session'); const session = token ? await Session.findOne({ tokenHash: hashToken(token) }) : null;
     if (session && req.get('x-csrf-token') !== session.csrf) return res.status(403).json({ error: { code: 'CSRF_REJECTED', message: 'CSRF token is invalid.' } });
     if (token) await Session.deleteOne({ tokenHash: hashToken(token) });
-    res.clearCookie('kenora_session', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', path: '/' }); res.status(204).end();
+    const production = process.env.NODE_ENV === 'production';
+    res.clearCookie('kenora_session', { httpOnly: true, secure: production, sameSite: production ? 'none' : 'strict', path: '/' }); res.status(204).end();
   } catch (error) { next(error); }
 });
 app.post('/api/v1/auth/refresh', async (req, res, next) => { try { const token=getCookie(req,'kenora_session');if(!token)return res.status(401).json({error:{code:'UNAUTHENTICATED',message:'Sign in to continue.'}});const session=await Session.findOne({tokenHash:hashToken(token),expiresAt:{$gt:new Date()}});if(!session)return res.status(401).json({error:{code:'UNAUTHENTICATED',message:'Session expired.'}});if(req.get('x-csrf-token')!==session.csrf)return res.status(403).json({error:{code:'CSRF_REJECTED',message:'CSRF token is invalid.'}});session.expiresAt=new Date(Date.now()+7*86400000);await session.save();res.json({data:{csrf:session.csrf}});}catch(error){next(error);} });
