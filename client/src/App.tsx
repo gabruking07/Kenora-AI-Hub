@@ -2064,6 +2064,7 @@ function ProvidersWorkspace() {
 
 function ModelsWorkspace() {
   const { data, loading, error, refresh } = useLoad("/models");
+  const { data: workspaceSettings, refresh: refreshWorkspaceSettings } = useLoad("/settings");
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
   const [selectedModelId, setSelectedModelId] = useState("");
@@ -2071,10 +2072,15 @@ function ModelsWorkspace() {
     (model) => model.active && model.verifiedAt,
   );
   useEffect(() => {
+    const workspaceModel = workspaceSettings?.globalModel;
+    if (workspaceModel && selectableModels.some((model) => model.modelId === workspaceModel)) {
+      setSelectedModelId(workspaceModel);
+      return;
+    }
     if (!selectableModels.some((model) => model.modelId === selectedModelId)) {
       setSelectedModelId(selectableModels[0]?.modelId ?? "");
     }
-  }, [data, selectedModelId]);
+  }, [data, workspaceSettings?.globalModel]);
   async function applyModelToAllProjects() {
     const model = selectableModels.find((item) => item.modelId === selectedModelId);
     if (!model || busy) return;
@@ -2089,9 +2095,10 @@ function ModelsWorkspace() {
       const result = await apiClient.post(`${API}/projects/apply-model`, {
         modelId: model.modelId,
       });
+      refreshWorkspaceSettings();
       const count = result.data.data.matchedCount as number;
       setMessage(
-        `${model.displayName || model.modelId} assigned to ${count} project${count === 1 ? "" : "s"}.`,
+        `${model.displayName || model.modelId} is now the workspace model and was assigned to ${count} project${count === 1 ? "" : "s"}. All Kenora gateway requests now use it, including requests that send an older model name.`,
       );
     } catch (e) {
       setMessage(
@@ -2132,9 +2139,11 @@ function ModelsWorkspace() {
       {message && <div className="inline-alert">{message}</div>}
       <div className="project-toolbar" style={{ padding: "14px 16px", borderBottom: "1px solid var(--line)" }}>
         <div style={{ flex: 1, minWidth: 200 }}>
-          <b>Apply a model to all projects</b>
+          <b>Workspace model for all projects and connected sites</b>
           <small style={{ display: "block", color: "var(--muted)", marginTop: 4 }}>
-            Existing projects will use this verified model for future Kenora API requests.
+            {workspaceSettings?.globalModel
+              ? `Active workspace model: ${workspaceSettings.globalModel}`
+              : "No workspace override is active; projects use their individual model settings."}
           </small>
         </div>
         <select
@@ -2155,7 +2164,7 @@ function ModelsWorkspace() {
           disabled={!selectedModelId || busy === "all-projects"}
           onClick={() => void applyModelToAllProjects()}
         >
-          {busy === "all-projects" ? "Applying…" : "Apply to all projects"}
+          {busy === "all-projects" ? "Applying…" : "Set model for all sites"}
         </button>
       </div>
       <div className="table-wrap">

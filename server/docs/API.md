@@ -30,6 +30,8 @@ The browser talks to the backend through `VITE_API_URL` (default `http://localho
 - `/v1/generate`, `/v1/chat`, `/v1/generate/stream`, `/v1/embeddings`: project gateway.
 - `/v1/models`, `/v1/projects/me`, `/v1/usage/me`: project metadata and usage.
 
+The workspace model selected through `POST /projects/apply-model` is stored as a workspace-wide override. It takes precedence over each project's model and any model explicitly supplied by a Kenora gateway caller. All gateway-connected sites therefore use the selected verified model on future requests. Sites that call a provider directly do not pass through this override and must be integrated with the Kenora gateway.
+
 ## Local development
 
 See root `README.md` and the local `guide.txt` for setup steps. `guide.txt` is ignored by Git at the user's request; update the local guide whenever the website or local setup changes, and keep this version-controlled API guide and README aligned.
