@@ -20,7 +20,15 @@ const envPath = [
 ].find(existsSync);
 if (envPath) dotenv.config({ path: envPath });
 
-type AuthenticatedRequest = express.Request & { auth?: { userId: string; teamId: string; role: string; csrf: string } };
+declare global {
+  namespace Express {
+    interface Request {
+      auth?: { userId: string; teamId: string; role: string; csrf: string };
+    }
+  }
+}
+
+type AuthenticatedRequest = express.Request;
 
 const logger = pino({
   level: process.env.LOG_LEVEL ?? 'info',
