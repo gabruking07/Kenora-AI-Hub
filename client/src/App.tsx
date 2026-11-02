@@ -1238,17 +1238,12 @@ function ProjectDetails() {
             </div>
           )}
           <div className="detail-tabs">
-            <span className="selected">Overview</span>
+            <a className="selected" href="#project-overview">Overview</a>
             <a href="#project-ai">AI Configuration</a>
             <Link to={`/credentials?projectId=${id}`}>Credentials</Link>
-            <Link to="/analytics">Usage</Link>
-            <Link to={`/budgets?projectId=${id}`}>Budgets</Link>
-            <Link to={`/logs?projectId=${id}`}>Request Logs</Link>
-            <a href="#project-ai">Environments</a>
-            <Link to="/settings">Settings</Link>
           </div>
-          <div className="detail-grid">
-            <div className="panel detail-panel">
+          <div className="detail-grid" id="project-overview">
+            <div className="panel detail-panel" id="project-ai">
               <div className="panel-heading">
                 <div>
                   <h2>Project configuration</h2>
