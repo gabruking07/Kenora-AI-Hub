@@ -32,7 +32,7 @@ The dashboard API defaults to `http://localhost:4000/api/v1`. Configure `VITE_AP
 - Owner bootstrap and sign-in, password hashing, rotating sessions, CSRF protection, invitation acceptance, workspace roles, and tenant-scoped records.
 - Project CRUD and project-level provider/model selection, with a workspace-wide verified model override for all projects and connected sites.
 - Encrypted Gemini provider key storage, connectivity check, live model discovery, model activation and manually maintained price history.
-- One-time project credentials with rotation and revocation.
+- Project credentials are hash-verified and encrypted at rest for owner/admin key viewing; rotation, revocation, and bulk deletion are supported. Existing hash-only credentials need one rotation before they can be viewed.
 - Playground and gateway text generation/chat, token usage and latency records, request logs, analytics, and prompt library CRUD.
 - Monthly/daily project budgets with atomic request reservations for standard generation; project credential rate limits.
 - Team invitations and membership management, notifications, audit history, platform settings, and MongoDB health.

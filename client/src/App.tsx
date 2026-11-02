@@ -2259,6 +2259,19 @@ function CredentialsWorkspace() {
       setBusy(false);
     }
   }
+  async function viewKey(id: string) {
+    setBusy(true);
+    setMessage("");
+    try {
+      const r = await apiClient.get(`${API}/credentials/${id}/secret`);
+      setSecret(r.data.data.secret);
+      setSecretCredentialId(r.data.data.id);
+    } catch (e) {
+      setMessage(axios.isAxiosError(e) ? (e.response?.data?.error?.message ?? "Could not view key.") : "Could not view key.");
+    } finally {
+      setBusy(false);
+    }
+  }
   async function revoke(id: string) {
     if (!window.confirm("Revoke this credential immediately?")) return;
     await apiClient.delete(`${API}/credentials/${id}`);
@@ -2400,8 +2413,8 @@ function CredentialsWorkspace() {
                       {String(c._id) === String(secretCredentialId) && c.active ? (
                         <code className="credential-key">{secret}</code>
                       ) : (
-                        <button className="row-action" disabled={busy} onClick={() => rotate(c._id)}>
-                          Rotate &amp; show new key
+                        <button className="row-action" disabled={busy} onClick={() => viewKey(c._id)}>
+                          View key
                         </button>
                       )}
                     </td>
@@ -2433,7 +2446,7 @@ function CredentialsWorkspace() {
             </tbody>
           </table>
         </div>
-        <p className="field-note credential-note">Only the full key created or rotated during this page session can be shown. Stored keys cannot be recovered. Use “Rotate &amp; show new key” to replace an existing key; this immediately invalidates the old one. Revoked credentials are removed from this list.</p>
+        <p className="field-note credential-note">Use “View key” to reveal an active credential. Older keys created before key viewing was added may need to be rotated once. Revoked credentials are removed from this list.</p>
       </div>
     </div>
   );
