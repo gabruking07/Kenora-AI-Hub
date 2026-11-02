@@ -1,0 +1,13 @@
+{
+  "name": "kenora-ai-hub",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["client", "server", "server/sdk/ai-client"],
+  "scripts": {
+    "dev": "concurrently -n server,client -c magenta,cyan \"npm run dev -w @kenora/server\" \"npm run dev -w @kenora/client\"",
+    "build": "npm run build -w @kenora/server && npm run build -w @kenora/client && npm run build -w @kenora/ai-client",
+    "typecheck": "npm run typecheck -w @kenora/server && npm run typecheck -w @kenora/client && npm run typecheck -w @kenora/ai-client",
+    "test": "npm run build -w @kenora/server && node --test server/tests/api-smoke.test.mjs"
+  },
+  "devDependencies": { "concurrently": "^9.1.2", "typescript": "^5.7.3" }
+}
