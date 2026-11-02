@@ -24,6 +24,7 @@ The browser talks to the backend through `VITE_API_URL` (default `http://localho
 
 - `/auth`: owner setup, login, logout, refresh, current session, invitation acceptance.
 - `/projects`: project CRUD, credentials, budgets, and project-level gateway configuration. `POST /projects/apply-model` assigns one active, verified model to all projects in the current workspace.
+- `DELETE /projects/:id/credentials`: permanently deletes all credentials for that project; owner/admin only. Active integrations stop working immediately. Credential secrets are hashed, so existing full keys cannot be recovered; create/rotate shows a new secret once.
 - `/providers`, `/models`: Gemini key configuration, connection test, model sync, activation, and pricing history.
 - `/playground`, `/prompts`: workspace generation and prompt library.
 - `/analytics`, `/logs`, `/notifications`, `/audit`, `/settings`, `/team`: operational workspace screens.

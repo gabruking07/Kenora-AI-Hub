@@ -2216,6 +2216,7 @@ function CredentialsWorkspace() {
   const [label, setLabel] = useState("");
   const [environment, setEnvironment] = useState("development");
   const [secret, setSecret] = useState("");
+  const [secretCredentialId, setSecretCredentialId] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   async function create() {
@@ -2227,6 +2228,7 @@ function CredentialsWorkspace() {
         environment,
       });
       setSecret(r.data.data.secret);
+      setSecretCredentialId(r.data.data.id);
       setLabel("");
       refresh();
     } catch (e) {
@@ -2244,6 +2246,7 @@ function CredentialsWorkspace() {
     try {
       const r = await apiClient.post(`${API}/credentials/${id}/rotate`);
       setSecret(r.data.data.secret);
+      setSecretCredentialId(r.data.data.id);
       refresh();
     } catch (e) {
       setMessage(
@@ -2260,6 +2263,24 @@ function CredentialsWorkspace() {
     await apiClient.delete(`${API}/credentials/${id}`);
     refresh();
   }
+  async function deleteAll() {
+    if (!projectId || busy) return;
+    if (!window.confirm("Permanently delete every credential for this project, including revoked credentials? Active integrations will stop working immediately.")) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const result = await apiClient.delete(`${API}/projects/${projectId}/credentials`);
+      setSecret("");
+      setSecretCredentialId("");
+      const count = result.data.data.deletedCount as number;
+      setMessage(`Deleted ${count} credential${count === 1 ? "" : "s"}.`);
+      refresh();
+    } catch (e) {
+      setMessage(axios.isAxiosError(e) ? (e.response?.data?.error?.message ?? "Could not delete credentials.") : "Could not delete credentials.");
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <div className="operational-stack">
       <div className="panel credentials-panel">
@@ -2270,6 +2291,7 @@ function CredentialsWorkspace() {
             onChange={(e) => {
               setProjectId(e.target.value);
               setSecret("");
+              setSecretCredentialId("");
             }}
           >
             <option value="">Select a project</option>
@@ -2306,7 +2328,7 @@ function CredentialsWorkspace() {
         </BusyButton>
         {secret && (
           <div className="secret-once">
-            <b>Copy this secret now. It will not be shown again.</b>
+            <b>Copy this secret now. It is visible only until you leave or reload this page.</b>
             <code>{secret}</code>
             <button
               className="button button-secondary"
@@ -2319,13 +2341,17 @@ function CredentialsWorkspace() {
         {message && <ErrorNote text={message} />}
       </div>
       <div className="panel projects-table-panel">
+        <div className="project-toolbar" style={{ justifyContent: "space-between", padding: "12px 16px", borderBottom: "1px solid var(--line)" }}>
+          <b>Project credentials</b>
+          <button className="button button-danger" disabled={!projectId || busy || !credentials?.length} onClick={deleteAll}>Delete all credentials</button>
+        </div>
         <div className="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>LABEL</th>
                 <th>ENVIRONMENT</th>
-                <th>PREFIX</th>
+                <th>KEY</th>
                 <th>STATUS</th>
                 <th>LAST USED</th>
                 <th />
@@ -2369,9 +2395,7 @@ function CredentialsWorkspace() {
                   <tr key={c._id}>
                     <td>{c.label}</td>
                     <td>{c.environment}</td>
-                    <td>
-                      <code>{c.prefix}…</code>
-                    </td>
+                    <td><code>{c._id === secretCredentialId && c.active ? secret : `${c.prefix}…`}</code></td>
                     <td>{c.active ? "Active" : "Revoked"}</td>
                     <td>
                       {c.lastUsedAt
