@@ -180,6 +180,7 @@ function App() {
   const [csrf, setCsrf] = useState("");
   const [authReady, setAuthReady] = useState(false);
   const [ownerConfigured, setOwnerConfigured] = useState(false);
+  const [databaseReady, setDatabaseReady] = useState<boolean | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const current =
@@ -196,8 +197,14 @@ function App() {
       .catch(() =>
         apiClient
           .get(`${API}/auth/status`)
-          .then((r) => setOwnerConfigured(r.data.configured))
-          .catch(() => setOwnerConfigured(false)),
+          .then((r) => {
+            setOwnerConfigured(r.data.configured);
+            setDatabaseReady(r.data.database === true);
+          })
+          .catch(() => {
+            setOwnerConfigured(false);
+            setDatabaseReady(null);
+          }),
       )
       .finally(() => setAuthReady(true));
   }, []);
@@ -240,6 +247,7 @@ function App() {
     return (
       <AuthScreen
         ownerConfigured={ownerConfigured}
+        databaseReady={databaseReady}
         onAuthenticated={onAuthenticated}
       />
     );
@@ -404,9 +412,11 @@ function App() {
 
 function AuthScreen({
   ownerConfigured,
+  databaseReady,
   onAuthenticated,
 }: {
   ownerConfigured: boolean;
+  databaseReady: boolean | null;
   onAuthenticated: (user: AuthUser, csrf: string) => void;
 }) {
   const invitationToken =
@@ -437,7 +447,9 @@ function AuthScreen({
       setError(
         axios.isAxiosError(err)
           ? (err.response?.data?.error?.message ??
-              "Authentication request failed.")
+              (err.response
+                ? "The API rejected the authentication request. Check the Render logs for details."
+                : "Cannot reach the API. Check VITE_API_URL and make sure Render WEB_ORIGIN matches this Vercel site."))
           : "Authentication request failed.",
       );
     } finally {
@@ -477,10 +489,16 @@ function AuthScreen({
               ? "Set up the workspace owner. Passwords are hashed with Argon2id."
               : "Sign in to access your AI control plane."}
         </p>
-        {!ownerConfigured && setup && !accepting && (
+        {!ownerConfigured && setup && !accepting && databaseReady === false && (
           <div className="inline-alert">
             <AlertCircle size={15} />
-            MongoDB must be connected before setup can be saved.
+            MongoDB is not connected. Check MONGODB_URI and the Render service logs.
+          </div>
+        )}
+        {!ownerConfigured && setup && !accepting && databaseReady === null && (
+          <div className="inline-alert">
+            <AlertCircle size={15} />
+            Cannot check database status. Verify the API URL and Render CORS settings.
           </div>
         )}
         {(setup || accepting) && (
@@ -532,7 +550,7 @@ function AuthScreen({
             {error}
           </div>
         )}
-        <button disabled={busy} className="button button-primary auth-submit">
+        <button disabled={busy || (setup && !accepting && databaseReady === false)} className="button button-primary auth-submit">
           {busy && <span className="spinner" />}
           {accepting
             ? "Join workspace"
