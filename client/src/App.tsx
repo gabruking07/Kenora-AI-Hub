@@ -2343,7 +2343,7 @@ function CredentialsWorkspace() {
       <div className="panel projects-table-panel">
         <div className="project-toolbar" style={{ justifyContent: "space-between", padding: "12px 16px", borderBottom: "1px solid var(--line)" }}>
           <b>Project credentials</b>
-          <button className="button button-danger" disabled={!projectId || busy || !credentials?.length} onClick={deleteAll}>Delete all credentials</button>
+          <button className="button button-danger" disabled={!projectId || busy} onClick={deleteAll}>Delete all credentials</button>
         </div>
         <div className="table-wrap">
           <table>
@@ -2395,7 +2395,7 @@ function CredentialsWorkspace() {
                   <tr key={c._id}>
                     <td>{c.label}</td>
                     <td>{c.environment}</td>
-                    <td><code>{c._id === secretCredentialId && c.active ? secret : `${c.prefix}…`}</code></td>
+                    <td><code className="credential-key">{String(c._id) === String(secretCredentialId) && c.active ? secret : `${c.prefix}…`}</code></td>
                     <td>{c.active ? "Active" : "Revoked"}</td>
                     <td>
                       {c.lastUsedAt
@@ -2424,6 +2424,7 @@ function CredentialsWorkspace() {
             </tbody>
           </table>
         </div>
+        <p className="field-note credential-note">Full keys are shown only after creation or rotation. Existing keys cannot be recovered; rotate a credential to replace it and reveal the new full key. Revoked credentials are removed from this list.</p>
       </div>
     </div>
   );
