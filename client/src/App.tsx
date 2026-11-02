@@ -25,7 +25,6 @@ import {
   FileText,
   GitBranch,
   HeartPulse,
-  LayoutDashboard,
   LockKeyhole,
   Menu,
   MoreHorizontal,
@@ -112,51 +111,10 @@ function BusyButton({
   );
 }
 const nav = [
-  { label: "Overview", path: "/", icon: LayoutDashboard, group: "WORKSPACE" },
-  { label: "Projects", path: "/projects", icon: Blocks, group: "WORKSPACE" },
-  { label: "AI Providers", path: "/providers", icon: Bot, group: "WORKSPACE" },
-  { label: "Models", path: "/models", icon: GitBranch, group: "WORKSPACE" },
-  {
-    label: "Credentials",
-    path: "/credentials",
-    icon: FileKey2,
-    group: "WORKSPACE",
-  },
-  {
-    label: "API Playground",
-    path: "/playground",
-    icon: Command,
-    group: "WORKSPACE",
-  },
-  { label: "Analytics", path: "/analytics", icon: Activity, group: "INSIGHTS" },
-  { label: "Request Logs", path: "/logs", icon: FileText, group: "INSIGHTS" },
-  {
-    label: "Budgets & Limits",
-    path: "/budgets",
-    icon: CreditCard,
-    group: "INSIGHTS",
-  },
-  {
-    label: "Prompt Library",
-    path: "/prompts",
-    icon: BookOpen,
-    group: "INSIGHTS",
-  },
-  { label: "Team", path: "/team", icon: Users, group: "MANAGE" },
-  {
-    label: "Notifications",
-    path: "/notifications",
-    icon: Bell,
-    group: "MANAGE",
-  },
-  { label: "Audit Logs", path: "/audit", icon: ShieldCheck, group: "MANAGE" },
-  {
-    label: "System Health",
-    path: "/health",
-    icon: HeartPulse,
-    group: "MANAGE",
-  },
-  { label: "Settings", path: "/settings", icon: Settings, group: "MANAGE" },
+  { label: "Projects", path: "/projects", icon: Blocks, group: "AI CONTROL" },
+  { label: "AI Providers", path: "/providers", icon: Bot, group: "AI CONTROL" },
+  { label: "Models", path: "/models", icon: GitBranch, group: "AI CONTROL" },
+  { label: "Credentials", path: "/credentials", icon: FileKey2, group: "AI CONTROL" },
 ];
 type Project = {
   _id: string;
@@ -252,7 +210,7 @@ function App() {
   return (
     <div className="app-shell">
       <aside className={`sidebar ${mobileOpen ? "sidebar-open" : ""}`}>
-        <Link className="brand" to="/" onClick={close}>
+        <Link className="brand" to="/projects" onClick={close}>
           <span className="brand-mark">
             <img src="/assets/Fully%20Transparent%20logo.png" />
           </span>
@@ -278,7 +236,7 @@ function App() {
           </span>
         </div>
         <nav className="side-nav">
-          {["WORKSPACE", "INSIGHTS", "MANAGE"].map((group) => (
+          {["AI CONTROL"].map((group) => (
             <div className="nav-group" key={group}>
               <div className="nav-heading">{group}</div>
               {nav
@@ -307,22 +265,6 @@ function App() {
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="usage-card">
-            <div className="usage-top">
-              <span className="usage-icon">
-                <Zap size={15} />
-              </span>
-              <span>Usage this month</span>
-            </div>
-            <div className="usage-value">No usage yet</div>
-            <div className="usage-line">
-              <span style={{ width: "0%" }} />
-            </div>
-            <div className="usage-foot">
-              <span>Connect a provider to begin</span>
-              <span>—</span>
-            </div>
-          </div>
           <div className="user-row">
             <div className="avatar user-avatar">K</div>
             <span className="user-label">
@@ -358,10 +300,11 @@ function App() {
           </div>
         </header>
         <Routes>
-          <Route path="/" element={<Overview count={projectCount} />} />
+          <Route path="/" element={<ProjectsPage />} />
+          <Route path="/overview" element={<Overview count={projectCount} />} />
           <Route path="/projects/:id" element={<ProjectDetails />} />
           <Route path="/projects" element={<ProjectsPage />} />
-          {nav.slice(2).map((item) => (
+          {nav.slice(1).map((item) => (
             <Route
               key={item.path}
               path={item.path}
