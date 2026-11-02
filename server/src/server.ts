@@ -197,6 +197,20 @@ app.post('/api/v1/projects', async (req, res, next) => {
     res.status(201).json({ data: project });
   } catch (error) { next(error); }
 });
+app.post('/api/v1/projects/apply-model', async (req, res, next) => {
+  try {
+    const auth = (req as AuthenticatedRequest).auth!;
+    if (!['owner', 'admin'].includes(auth.role)) return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Owner or admin role required.' } });
+    const input = z.object({ modelId: z.string().trim().min(1).max(150) }).parse(req.body);
+    const model = await ModelRecord.findOne({ teamId: auth.teamId, provider: 'gemini', modelId: input.modelId, active: true, verifiedAt: { $ne: null } }).lean();
+    if (!model) return res.status(400).json({ error: { code: 'MODEL_NOT_VERIFIED', message: 'Choose an active model verified from the connected provider catalog.' } });
+    const provider = await Provider.exists({ teamId: auth.teamId, name: model.provider, enabled: true, status: 'connected' });
+    if (!provider) return res.status(409).json({ error: { code: 'PROVIDER_NOT_CONNECTED', message: 'Test the Gemini provider connection before changing project models.' } });
+    const result = await Project.updateMany({ teamId: auth.teamId }, { $set: { provider: model.provider, model: model.modelId, updatedAt: new Date() } });
+    await Audit.create({ teamId: auth.teamId, actorId: auth.userId, action: 'projects.model.bulk_assigned', resourceType: 'model', resourceId: String(model._id) });
+    res.json({ data: { provider: model.provider, model: model.modelId, matchedCount: result.matchedCount, modifiedCount: result.modifiedCount } });
+  } catch (error) { next(error); }
+});
 app.get('/api/v1/projects/:id', async (req, res, next) => {
   try { const auth = (req as AuthenticatedRequest).auth!; const row = await Project.findOne({ _id: req.params.id, teamId: auth.teamId }).lean(); if (!row) return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Project not found.' } }); res.json({ data: row }); } catch (error) { next(error); }
 });

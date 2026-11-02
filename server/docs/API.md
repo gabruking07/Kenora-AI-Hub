@@ -23,7 +23,7 @@ The browser talks to the backend through `VITE_API_URL` (default `http://localho
 ## Main route groups
 
 - `/auth`: owner setup, login, logout, refresh, current session, invitation acceptance.
-- `/projects`: project CRUD, credentials, budgets, and project-level gateway configuration.
+- `/projects`: project CRUD, credentials, budgets, and project-level gateway configuration. `POST /projects/apply-model` assigns one active, verified model to all projects in the current workspace.
 - `/providers`, `/models`: Gemini key configuration, connection test, model sync, activation, and pricing history.
 - `/playground`, `/prompts`: workspace generation and prompt library.
 - `/analytics`, `/logs`, `/notifications`, `/audit`, `/settings`, `/team`: operational workspace screens.

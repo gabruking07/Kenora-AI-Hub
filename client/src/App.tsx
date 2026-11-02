@@ -2066,6 +2066,43 @@ function ModelsWorkspace() {
   const { data, loading, error, refresh } = useLoad("/models");
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
+  const [selectedModelId, setSelectedModelId] = useState("");
+  const selectableModels = ((data ?? []) as any[]).filter(
+    (model) => model.active && model.verifiedAt,
+  );
+  useEffect(() => {
+    if (!selectableModels.some((model) => model.modelId === selectedModelId)) {
+      setSelectedModelId(selectableModels[0]?.modelId ?? "");
+    }
+  }, [data, selectedModelId]);
+  async function applyModelToAllProjects() {
+    const model = selectableModels.find((item) => item.modelId === selectedModelId);
+    if (!model || busy) return;
+    if (
+      !window.confirm(
+        `Assign ${model.displayName || model.modelId} to every project in this workspace? This changes the provider and model for all projects.`,
+      )
+    ) return;
+    setBusy("all-projects");
+    setMessage("");
+    try {
+      const result = await apiClient.post(`${API}/projects/apply-model`, {
+        modelId: model.modelId,
+      });
+      const count = result.data.data.matchedCount as number;
+      setMessage(
+        `${model.displayName || model.modelId} assigned to ${count} project${count === 1 ? "" : "s"}.`,
+      );
+    } catch (e) {
+      setMessage(
+        axios.isAxiosError(e)
+          ? (e.response?.data?.error?.message ?? "Could not update project models.")
+          : "Could not update project models.",
+      );
+    } finally {
+      setBusy("");
+    }
+  }
   async function save(model: any) {
     setBusy(model._id);
     try {
@@ -2093,6 +2130,34 @@ function ModelsWorkspace() {
     <div className="panel projects-table-panel">
       <ErrorNote text={error} />
       {message && <div className="inline-alert">{message}</div>}
+      <div className="project-toolbar" style={{ padding: "14px 16px", borderBottom: "1px solid var(--line)" }}>
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <b>Apply a model to all projects</b>
+          <small style={{ display: "block", color: "var(--muted)", marginTop: 4 }}>
+            Existing projects will use this verified model for future Kenora API requests.
+          </small>
+        </div>
+        <select
+          aria-label="Model to assign to all projects"
+          value={selectedModelId}
+          onChange={(event) => setSelectedModelId(event.target.value)}
+          disabled={!selectableModels.length || busy === "all-projects"}
+          style={{ width: "min(320px, 100%)", height: 38, margin: 0 }}
+        >
+          {selectableModels.length ? selectableModels.map((model) => (
+            <option key={model._id} value={model.modelId}>
+              {model.displayName || model.modelId}
+            </option>
+          )) : <option value="">No verified active models</option>}
+        </select>
+        <button
+          className="button button-primary"
+          disabled={!selectedModelId || busy === "all-projects"}
+          onClick={() => void applyModelToAllProjects()}
+        >
+          {busy === "all-projects" ? "Applying…" : "Apply to all projects"}
+        </button>
+      </div>
       <div className="table-wrap">
         <table>
           <thead>

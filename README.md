@@ -30,7 +30,7 @@ The dashboard API defaults to `http://localhost:4000/api/v1`. Configure `VITE_AP
 ## What works
 
 - Owner bootstrap and sign-in, password hashing, rotating sessions, CSRF protection, invitation acceptance, workspace roles, and tenant-scoped records.
-- Project CRUD and project-level provider/model selection.
+- Project CRUD and project-level provider/model selection, with a workspace-wide action to assign one verified model to all existing projects.
 - Encrypted Gemini provider key storage, connectivity check, live model discovery, model activation and manually maintained price history.
 - One-time project credentials with rotation and revocation.
 - Playground and gateway text generation/chat, token usage and latency records, request logs, analytics, and prompt library CRUD.
