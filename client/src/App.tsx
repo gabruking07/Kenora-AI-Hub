@@ -2247,6 +2247,7 @@ function CredentialsWorkspace() {
       const r = await apiClient.post(`${API}/credentials/${id}/rotate`);
       setSecret(r.data.data.secret);
       setSecretCredentialId(r.data.data.id);
+      setMessage("Credential rotated. Copy the full new key now; the previous key is no longer valid.");
       refresh();
     } catch (e) {
       setMessage(
@@ -2395,7 +2396,15 @@ function CredentialsWorkspace() {
                   <tr key={c._id}>
                     <td>{c.label}</td>
                     <td>{c.environment}</td>
-                    <td><code className="credential-key">{String(c._id) === String(secretCredentialId) && c.active ? secret : `${c.prefix}…`}</code></td>
+                    <td>
+                      {String(c._id) === String(secretCredentialId) && c.active ? (
+                        <code className="credential-key">{secret}</code>
+                      ) : (
+                        <button className="row-action" disabled={busy} onClick={() => rotate(c._id)}>
+                          Rotate &amp; show new key
+                        </button>
+                      )}
+                    </td>
                     <td>{c.active ? "Active" : "Revoked"}</td>
                     <td>
                       {c.lastUsedAt
@@ -2424,7 +2433,7 @@ function CredentialsWorkspace() {
             </tbody>
           </table>
         </div>
-        <p className="field-note credential-note">Full keys are shown only after creation or rotation. Existing keys cannot be recovered; rotate a credential to replace it and reveal the new full key. Revoked credentials are removed from this list.</p>
+        <p className="field-note credential-note">Only the full key created or rotated during this page session can be shown. Stored keys cannot be recovered. Use “Rotate &amp; show new key” to replace an existing key; this immediately invalidates the old one. Revoked credentials are removed from this list.</p>
       </div>
     </div>
   );
