@@ -2,6 +2,10 @@
   "name": "kenora-ai-hub",
   "private": true,
   "version": "0.1.0",
+  "allowScripts": {
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.2": true
+  },
   "workspaces": ["client", "server", "server/sdk/ai-client"],
   "scripts": {
     "dev": "concurrently -n server,client -c magenta,cyan \"npm run dev -w @kenora/server\" \"npm run dev -w @kenora/client\"",
