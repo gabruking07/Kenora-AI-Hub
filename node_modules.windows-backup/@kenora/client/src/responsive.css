@@ -1,0 +1,276 @@
+/* Shared small-screen rules for the dashboard, project screens, and forms. */
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+}
+
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+.app-shell,
+.main-area,
+.page-content,
+.panel,
+.detail-panel,
+.stat-card {
+  min-width: 0;
+}
+
+.page-content {
+  width: 100%;
+}
+
+.table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrap table {
+  min-width: 620px;
+}
+
+.detail-tabs {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.detail-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.modal-backdrop {
+  overflow-y: auto;
+}
+
+.modal {
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+}
+
+@media (max-width: 1100px) {
+  .topbar {
+    padding-inline: clamp(16px, 3vw, 28px);
+  }
+
+  .page-content {
+    padding-inline: clamp(16px, 3vw, 28px);
+  }
+
+  .detail-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 860px) {
+  .overview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .overview-grid > *,
+  .lower-grid > * {
+    min-width: 0;
+  }
+
+  .page-header {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 760px) {
+  .sidebar {
+    height: 100dvh;
+    max-height: 100dvh;
+    padding-bottom: max(13px, env(safe-area-inset-bottom));
+  }
+
+  .topbar {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+
+  .breadcrumbs {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .topbar-actions {
+    flex: 0 0 auto;
+  }
+
+  .page-content {
+    padding: 20px 14px calc(76px + env(safe-area-inset-bottom));
+  }
+
+  .detail-grid,
+  .detail-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detail-fields select {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .panel-heading,
+  .notifications-head,
+  .playground-top {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .logout-fixed {
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: auto;
+    background: #111523;
+    border: 1px solid var(--line2);
+    padding: 8px 10px;
+  }
+}
+
+@media (max-width: 520px) {
+  .topbar {
+    height: 54px;
+    padding-inline: 9px;
+  }
+
+  .topbar-actions {
+    gap: 8px;
+  }
+
+  .breadcrumbs {
+    gap: 6px;
+    margin-left: 4px;
+    font-size: 10px;
+  }
+
+  .page-content {
+    padding: 17px 11px calc(72px + env(safe-area-inset-bottom));
+  }
+
+  .page-header {
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .page-header .button {
+    height: auto;
+    min-height: 34px;
+    padding-block: 7px;
+  }
+
+  .page-header h1 {
+    font-size: clamp(20px, 6vw, 24px);
+    overflow-wrap: anywhere;
+  }
+
+  .page-header p {
+    font-size: 11px;
+  }
+
+  .stats-grid,
+  .health-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 11px;
+  }
+
+  .stat-top {
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .stat-value {
+    font-size: clamp(16px, 5vw, 20px);
+    overflow-wrap: anywhere;
+  }
+
+  .panel {
+    padding: 13px;
+  }
+
+  .projects-table-panel {
+    padding: 0;
+  }
+
+  .table-wrap table {
+    min-width: 560px;
+  }
+
+  .form-two,
+  .playground-fields,
+  .team-invite,
+  .provider-info-grid,
+  .prompt-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .button,
+  .page-header .button {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .modal-backdrop {
+    align-items: start;
+    padding: 12px;
+  }
+
+  .modal {
+    width: 100%;
+    padding: 16px;
+  }
+
+  .modal-actions,
+  .prompt-actions {
+    flex-wrap: wrap;
+  }
+
+  .auth-screen {
+    min-height: 100dvh;
+    justify-content: flex-start;
+    padding: max(20px, env(safe-area-inset-top)) 14px max(20px, env(safe-area-inset-bottom));
+  }
+
+  .auth-card {
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .stats-grid,
+  .health-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .search-trigger {
+    width: 30px;
+  }
+
+  .topbar-actions {
+    gap: 5px;
+  }
+}
