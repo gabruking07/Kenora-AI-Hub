@@ -18,7 +18,6 @@ import {
   BookOpen,
   Bot,
   ChevronDown,
-  CircleHelp,
   Clock3,
   Command,
   CreditCard,
@@ -182,7 +181,6 @@ function App() {
   const [ownerConfigured, setOwnerConfigured] = useState(false);
   const [databaseReady, setDatabaseReady] = useState<boolean | null>(null);
   const location = useLocation();
-  const navigate = useNavigate();
   const current =
     nav.find((item) => item.path === location.pathname) ??
     nav.find((item) => item.path === "/projects");
@@ -358,35 +356,6 @@ function App() {
             <span className="crumb-sep">/</span>
             <b>{current?.label ?? "Projects"}</b>
           </div>
-          <div className="topbar-actions">
-            <button
-              className="search-trigger"
-              onClick={() => {
-                navigate("/projects");
-                window.setTimeout(
-                  () => document.getElementById("global-search")?.focus(),
-                  40,
-                );
-              }}
-            >
-              <Search size={15} />
-              <span>Search anything...</span>
-              <kbd>⌘ K</kbd>
-            </button>
-            <Link
-              to="/notifications"
-              className="icon-button notification-button"
-              title="Notifications"
-            >
-              <Bell size={17} />
-              <i />
-            </Link>
-            <div className="top-divider" />
-            <div className="profile-trigger">
-              <span className="avatar mini-avatar">K</span>
-              <span>KenoraTech</span>
-            </div>
-          </div>
         </header>
         <Routes>
           <Route path="/" element={<Overview count={projectCount} />} />
@@ -401,10 +370,6 @@ function App() {
           ))}
           <Route path="*" element={<ProjectsPage />} />
         </Routes>
-        <div className="support-fab">
-          <CircleHelp size={16} />
-          <span>Help center</span>
-        </div>
       </main>
     </div>
   );
